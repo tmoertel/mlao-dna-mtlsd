@@ -13,7 +13,7 @@ To run the analyses in this project, you will need a Unix-like
 operating system (e.g., Linux or Mac OS X) and the following software:
 
 * The R statistical computing system
-  http://www.r-project.com/
+  http://www.r-project.org/
 
 * The ggplot2 package for R
   http://had.co.nz/ggplot2/
