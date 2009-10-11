@@ -2,7 +2,7 @@
 
 ##=============================================================================
 ##=============================================================================
-## Analysis of historical and forecasted property taxes collected by
+## Analysis of historical and forecasted real-estate taxes collected by
 ## the Mt. Lebanon, Pennsylvania, School District.
 ##
 ## Analyis by Tom Moertel <tom@mlao.org>.
@@ -130,7 +130,7 @@ qplot(Year, School.Mills * Assessed.Valuation / 1000,
           "Total Property Taxes (= Total Assessed Valuation") %*%
           textstyle("Millage Rate)"))
       ) +
-  stat_smooth(method="lm", se=F) +
+  stat_smooth(method="lm", se=F) +   # add trend lines
   scale_colour_hue(breaks=c(
                      "Forecast: +HS +PSERS",
                      "Forecast: +HS",
@@ -155,10 +155,10 @@ print(p.hist.and.forecasted.taxes)
 
 ## I save the chart in PDF and PNG formats.
 
-ggsave("mtl-hist-and-forecasted-prop-taxes.pdf",
+ggsave("mtlsd-hist-and-forecasted-re-taxes.pdf",
        p.hist.and.forecasted.taxes, width = 10, height = 7.5)
 
-ggsave("mtl-hist-and-forecasted-prop-taxes.png",
+ggsave("mtlsd-hist-and-forecasted-re-taxes.png",
        p.hist.and.forecasted.taxes, width = 8, height = 6, dpi = 100)
 
 

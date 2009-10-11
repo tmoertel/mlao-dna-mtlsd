@@ -1,3 +1,5 @@
+#!/usr/bin/Rscript
+
 ## Analysis of historical and forecasted property taxes collected by
 ## the Mt. Lebanon, Pennsylvania, School District as compared to
 ## Upper St. Clair.
