@@ -22,7 +22,7 @@ require("ggplot2")
 ## Spreadsheet (URL given below). --Tom
 ##=============================================================================
 
-## Source:  Mt. Lebanon 2007 Manager's Recommended Budget, "Millage History"
+## Source:  Mt. Lebanon 2009 Manager's Recommended Budget, "Millage History"
 ## Source:  http://spreadsheets.google.com/pub?key=t390h-L8SL9ucn3UKJ1-IUQ&single=true&gid=0&output=csv
 
 google_ss_url <- function(key) {
