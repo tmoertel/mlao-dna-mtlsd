@@ -22,8 +22,8 @@ cpi.predictions <- local({
 cpi.extended <- rbind(cpi, cpi.predictions)
 
 mk.inflation.adjuster <- function(base.year) {
+  offset <- 1 - min(cpi.extended$Year)
   cpi <- cpi.extended$CPI
-  offset <- 1 - min(cpi$Year)
   base.index <- cpi[base.year + offset]
   function(year) base.index/cpi[year + offset]
 }
@@ -34,5 +34,5 @@ mk.inflation.adjuster <- function(base.year) {
 ##
 ##
 ## all.data <- transform(all.data,
-##                       Adjusted.Valuation =
+##                       Adjusted.Valuation.In.2008.Dollars =
 ##                           Assessed.Valuation * adjustment.2008(Year))

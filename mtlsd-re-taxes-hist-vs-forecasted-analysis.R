@@ -19,8 +19,9 @@ require("ggplot2")
 ##=============================================================================
 ## Historical property-tax data -- I entered this data by hand from a
 ## scanned document (source given below) and uploaded it as a Google
-## Spreadsheet (URL given below). --Tom
-##=============================================================================
+## Spreadsheet (URL given below).  The data spans years 1986 through
+## 2007.  --Tom
+## =============================================================================
 
 ## Source:  Mt. Lebanon 2009 Manager's Recommended Budget, "Millage History"
 ## Source:  http://spreadsheets.google.com/pub?key=t390h-L8SL9ucn3UKJ1-IUQ&single=true&gid=0&output=csv
@@ -111,6 +112,24 @@ all.data <- rbind(historicals[,c("Year", "o.Year", "Assessed.Valuation",
                   forecast.data.hs,
                   forecast.data.hs.psers)
 
+
+##=============================================================================
+## Inflation adjustment -- I adjust assessed values into 2009 dolars,
+## using the BLS's CPI-U data.
+##=============================================================================
+
+source("inflation-adjustment.R")
+
+adjust.to.2009 <- mk.inflation.adjuster(2009)
+all.data <- within(all.data, {
+  Adjusted.Valuation <- Assessed.Valuation * adjust.to.2009(Year)
+})
+
+
+##=============================================================================
+## Plots
+##=============================================================================
+
 ## Using the combined data set, I plot the district's property-tax
 ## trends -- historical, current, and forecasted, with and without
 ## the high-school renovation and with and without PSERS increases.
@@ -118,7 +137,7 @@ all.data <- rbind(historicals[,c("Year", "o.Year", "Assessed.Valuation",
 ## spending (and taxing) trends.
 
 p.hist.and.forecasted.taxes <-
-qplot(Year, School.Mills * Assessed.Valuation / 1000,
+qplot(Year, School.Mills * Adjusted.Valuation / 1000,
       data = all.data,
       shape = Assess, colour = Trend,
       main = paste(
@@ -126,9 +145,7 @@ qplot(Year, School.Mills * Assessed.Valuation / 1000,
         "Collected For Mt. Lebanon School District",
         sep="\n"),
       xlab = "School Year",
-      ylab = expression(textstyle(
-          "Total Property Taxes (= Total Assessed Valuation") %*%
-          textstyle("Millage Rate)"))
+      ylab = "Total Property Taxes (2009 Dollars)"
       ) +
   stat_smooth(method="lm", se=F) +   # add trend lines
   scale_colour_hue(breaks=c(
@@ -177,36 +194,45 @@ ggsave("mtlsd-hist-and-forecasted-re-taxes.png",
 
 ## In the first model, I compare the school district's rate of
 ## spending growth before and after the county-wide 2001 property-tax
-## reassesment: before, spending increased by $1.2 million per year;
-## after, by $1.6 million per year.
+## reassesment.  It turns out, there was no big change.  In both,
+## property taxes increased at a rate of $0.5 million per year per
+## year.
 ##
 ##
 ## Trend                        Rate by which spending grows
 ##
-## Before reassessment          $1.2 million / year
-## After reassessment           $1.6 million / year  (+35% wrt before)
+## Before reassessment          $0.5 million / yr / yr
+## After reassessment           $0.5 million / yr / yr
 
-model.1 <- lm(School.Mills * Assessed.Valuation / 1000 ~ o.Year * Assess,
+model.1 <- lm(School.Mills * Adjusted.Valuation / 1000 ~ o.Year * Assess,
               data = all.data, subset = Year <= 2009)
 summary(model.1)
 
+local({ xs <- coef(model.1); xs[2] + c(0, xs[4]) }) / 1e6
+
+
 ## In the second model, I compare the school district's historical
-## post-reassesment spending growth with its forecasted spending
+## post-reassessment spending growth with its forecasted spending
 ## growth under different scenarios.  Under the district's
 ## "no-big-changes" scenario, the rate of spending growth increases to
-## $2.1 million per year; with the high school renovation, the growth
-## rate increases to $3.0 million per year; with the renovation and
-## PSERS increases, the rate jumps to $4.9 million per year:
+## $0.9 million per year; with the high school renovation, the growth
+## rate increases to $1.6 million per year; with the renovation and
+## PSERS increases, the rate jumps to $3.4 million per year:
 ##
 ##
 ## Trend                        Rate by which spending grows
 ##
-## Historical baseline          $1.6 million / year
-## Forecast: no big changes     $2.1 million / year  (+ 37% wrt baseline)
-## Forecast: high school renov. $3.0 million / year  (+ 90% wrt baseline)
-## Forecast: h.s.r. and PSERS   $4.9 million / year  (+215% wrt baseline)
+## Historical baseline          $0.5 million / yr / yr
+## Forecast: no big changes     $0.9 million / yr / yr  (+ 79% wrt baseline)
+## Forecast: high school renov. $1.6 million / yr / yr  (+215% wrt baseline)
+## Forecast: h.s.r. and PSERS   $3.4 million / yr / yr  (+559% wrt baseline)
 
 model.1.forecasted <-
-  lm(School.Mills * Assessed.Valuation / 1000 ~ o.Year * Trend,
+  lm(School.Mills * Adjusted.Valuation / 1000 ~ o.Year * Trend,
      data = all.data, subset = Year >= 2001)
 summary(model.1.forecasted)
+
+model.1.forecasted.rates.in.millions <-
+  local({ xs <- coef(model.1.forecasted); xs[2] + c(0, xs[6:8]) }) / 1e6
+
+local({ xs <- model.1.forecasted.rates.in.millions; xs[2:4] / xs[1] })
