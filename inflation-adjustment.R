@@ -15,8 +15,10 @@ cpi <- read.csv("http://spreadsheets.google.com/pub?key=tRdVRikb23tPzs1u-STyV4w&
 
 cpi.model <- lm(CPI ~ Year, data = cpi)
 cpi.predictions <- local({
-  cpi.predictions <- data.frame(Year=2009:2014)
-  within(cpi.predictions, { CPI <- predict(cpi.model, cpi.predictions) })
+  avg.yearly.change <- coef(cpi.model)[2]
+  last.val <- cpi$CPI[length(cpi$CPI)]
+  data.frame(Year=2009:2014,
+             CPI = last.val + 1:6 * avg.yearly.change)
 })
 
 cpi.extended <- rbind(cpi, cpi.predictions)
